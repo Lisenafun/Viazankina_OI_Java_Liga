@@ -1,6 +1,6 @@
 public class DeadLock {
 
-    static class Friend implements Comparable<Friend> {
+    static class Friend {
         private final String name;
 
         public Friend(String name) {
@@ -14,18 +14,11 @@ public class DeadLock {
         public void bow(Friend bower) {
             System.out.format("%s: %s подстрелил меня!\n", this.name, bower.getName());
             System.out.format("%s: стреляю в ответ!\n", this.name);
-            synchronized(compareTo(bower) > 0 ? bower : this) {
-                bower.bowBack(this);
-            }
+            bower.bowBack(this);
         }
 
         public void bowBack(Friend bower) {
             System.out.format("%s: %s подстрелил меня!\n", this.name, bower.getName());
-        }
-
-        @Override
-        public int compareTo(Friend o) {
-            return this.getName().compareTo(o.getName());
         }
     }
 
