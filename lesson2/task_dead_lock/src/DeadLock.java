@@ -13,15 +13,17 @@ public class DeadLock {
         }
 
         public void bow(Friend bower) {
-            synchronized(Friend.class) {
+            synchronized(this) {
                 System.out.format("%s: %s подстрелил меня!\n", this.name, bower.getName());
                 System.out.format("%s: стреляю в ответ!\n", this.name);
-                bower.bowBack(this);
             }
+            bower.bowBack(this);
         }
 
         public void bowBack(Friend bower) {
-            System.out.format("%s: %s подстрелил меня!\n", this.name, bower.getName());
+            synchronized(this) {
+                System.out.format("%s: %s подстрелил меня!\n", this.name, bower.getName());
+            }
         }
     }
 
