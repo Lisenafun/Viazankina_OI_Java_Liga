@@ -14,6 +14,7 @@ import service_order.domains.Order;
 @Component
 public class OrderDAO {
 
+    @Autowired
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -28,7 +29,7 @@ public class OrderDAO {
         sqlParameterSource.addValue("customer_id", customerDAO.getCurrentCustomerId());
         KeyHolder keyHolder = new GeneratedKeyHolder();
         namedTemplate.update(sql, sqlParameterSource, keyHolder);
-        order.setId((long)keyHolder.getKey());
+        order.setId((int)keyHolder.getKey());
         order.setCustomerId(customerDAO.getCurrentCustomerId());
         return order;
     }

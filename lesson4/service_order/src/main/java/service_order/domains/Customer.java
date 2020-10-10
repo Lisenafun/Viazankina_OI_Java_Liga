@@ -9,7 +9,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class Customer {
 
-    private long id;
+    private int id;
     private String name;
     private String email;
 }
