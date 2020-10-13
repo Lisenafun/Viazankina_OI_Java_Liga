@@ -1,9 +1,6 @@
 package service_order.domains;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -11,6 +8,8 @@ import java.io.Serializable;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class Order implements Serializable {
 
     private int id;
