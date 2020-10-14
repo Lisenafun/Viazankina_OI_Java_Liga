@@ -17,8 +17,11 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping(value = "/orders/")
-    public ResponseEntity<Order> createOrder(Order order) throws Exception {
+    public ResponseEntity<?> createOrder(Order order) {
         Order order1 = orderService.createOrder(order);
+        if(order1 == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Некорректно оформленный заказ.");
+        }
         return ResponseEntity.status(HttpStatus.OK).body(order1);
     }
 }

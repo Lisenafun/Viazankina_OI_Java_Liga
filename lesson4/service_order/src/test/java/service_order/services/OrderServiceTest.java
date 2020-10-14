@@ -6,19 +6,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import service_order.dao.OrderDAO;
 import service_order.domains.Order;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 
-@SpringBootTest
 public class OrderServiceTest {
-
-    @Autowired
-    private OrderService orderService;
 
     @Mock
     OrderDAO orderDAO;
@@ -30,9 +24,20 @@ public class OrderServiceTest {
 
     @Test
     @DisplayName("Проверка корректности записи данных")
-    public void testCreateOrderOK() throws Exception {
-        Mockito.when(orderDAO.addOrder(any())).thenReturn(new Order(1,"book", 1500, 1));
-        Order order = new Order(1,"book", 1500,1);
-        assertEquals(order, orderDAO.addOrder(any()));
+    public void testCreateOrderOK() {
+        Order expectedOrder = new Order(1, "book", 1500, 1);
+        Mockito.when(orderDAO.addOrder(any())).thenReturn(expectedOrder);
+        OrderService orderService = new OrderService(orderDAO);
+        Order actualOrder = orderService.createOrder(new Order("book", 1));
+        assertEquals(expectedOrder, actualOrder);
+        Mockito.verify(orderDAO).addOrder(any());
+    }
+
+    @Test
+    @DisplayName("Проверка на получение null при некорректном заказе")
+    public void testCreateOrderFalse() {
+        Order orderFalse = new Order(anyString(), -15);
+        OrderService orderService = new OrderService(orderDAO);
+        assertNull(orderService.createOrder(orderFalse));
     }
 }

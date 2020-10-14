@@ -7,7 +7,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.KeyHolder;
 import service_order.domains.Order;
@@ -17,17 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 public class OrderDAOTest {
 
-//    @Mock
-//    private JdbcTemplate jdbcTemplate;
-//
-//    @Mock
-//    private CustomerDAO customerDAO;
-//
-//    @Mock
-//    private KeyHolder keyHolder;
+    @Autowired
+    OrderDAO orderDAO;
 
-//    @InjectMocks
-//    private OrderDAO orderDAO;
+    @MockBean
+    private JdbcTemplate jdbcTemplate;
+
+    @MockBean
+    private CustomerDAO customerDAO;
 
 //    @BeforeEach
 //    void setUp() {
