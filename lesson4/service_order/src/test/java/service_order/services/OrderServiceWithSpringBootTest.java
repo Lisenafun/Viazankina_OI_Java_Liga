@@ -22,12 +22,12 @@ public class OrderServiceWithSpringBootTest {
     OrderDAO orderDAO;
 
     @Test
-    @DisplayName("Проверка корректности записи данных")
-    public void testCreateOrderOK() {
-        Order expectedOrder = new Order(1,"book", 1500,1);
-        Mockito.when(orderDAO.addOrder(any())).thenReturn(expectedOrder);
-        Order actualOrder = orderService.createOrder(new Order("book", 1));
-        assertEquals(expectedOrder, actualOrder);
+    @DisplayName("Проверка корректности работы метода")
+    public void testCreateOrderOK() throws Exception {
+        int expectedOrderId = 1;
+        Mockito.when(orderDAO.addOrder(any())).thenReturn(expectedOrderId);
+        int actualOrderId = orderService.createOrder(new Order("book", 1));
+        assertEquals(expectedOrderId, actualOrderId);
         Mockito.verify(orderDAO).addOrder(any());
     }
 }

@@ -13,12 +13,17 @@ public class OrderService {
     @Autowired
     private final OrderDAO orderDAO;
 
-    public Order createOrder(Order order) {
-        if(validate(order)) {
-            return orderDAO.addOrder(order);
-        }else{
-            return null;
-        }
+//    public Order createOrder(Order order) {
+//        if(validate(order)) {
+//            return orderDAO.addOrder(order);
+//        }else{
+//            return null;
+//        }
+//    }
+
+    public int createOrder(Order order) throws Exception {
+        if(!validate(order)) throw new Exception("Некорректно заполненный заказ.");
+        return orderDAO.addOrder(order);
     }
 
     private boolean validate(Order order){

@@ -23,21 +23,35 @@ public class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("Проверка корректности записи данных")
-    public void testCreateOrderOK() {
-        Order expectedOrder = new Order(1, "book", 1500, 1);
-        Mockito.when(orderDAO.addOrder(any())).thenReturn(expectedOrder);
+    @DisplayName("Проверка корректности работы метода")
+    public void testCreateOrderOK() throws Exception {
+        int expectedOrderId = 1;
+        Mockito.when(orderDAO.addOrder(any())).thenReturn(expectedOrderId);
         OrderService orderService = new OrderService(orderDAO);
-        Order actualOrder = orderService.createOrder(new Order("book", 1));
-        assertEquals(expectedOrder, actualOrder);
+        int actualOrderId = orderService.createOrder(new Order("book", 1));
+        assertEquals(expectedOrderId, actualOrderId);
         Mockito.verify(orderDAO).addOrder(any());
     }
 
     @Test
-    @DisplayName("Проверка на получение null при некорректном заказе")
-    public void testCreateOrderFalse() {
+    @DisplayName("Проверка на получение exception, когда указанная цена < 0")
+    public void testCreateOrderExceptionBadPrice() {
         Order orderFalse = new Order(anyString(), -15);
         OrderService orderService = new OrderService(orderDAO);
-        assertNull(orderService.createOrder(orderFalse));
+        Exception exception = assertThrows(Exception.class, () -> orderService.createOrder(orderFalse));
+        String expectedMessage = "Некорректно заполненный заказ.";
+        String actualMessage = exception.getMessage();
+        assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    @DisplayName("Проверка на получение exception, когда передана пустая строка без символов.")
+    public void testCreateOrderExceptionEmptyName() {
+        Order orderFalse = new Order("", anyInt());
+        OrderService orderService = new OrderService(orderDAO);
+        Exception exception = assertThrows(Exception.class, () -> orderService.createOrder(orderFalse));
+        String expectedMessage = "Некорректно заполненный заказ.";
+        String actualMessage = exception.getMessage();
+        assertEquals(expectedMessage, actualMessage);
     }
 }

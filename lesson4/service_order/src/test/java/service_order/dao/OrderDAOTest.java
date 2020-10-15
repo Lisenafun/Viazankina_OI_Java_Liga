@@ -12,32 +12,34 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.test.util.ReflectionTestUtils;
 import service_order.domains.Order;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 
-@SpringBootTest
+
 public class OrderDAOTest {
 
-    @Autowired
-    OrderDAO orderDAO;
-
-    @MockBean
+    @Mock
     private JdbcTemplate jdbcTemplate;
 
-    @MockBean
+    @Mock
     private CustomerDAO customerDAO;
 
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//    }
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
-    public void testAddOrder(){
+    public void testAddOrderOk(){
         Order order = new Order("book", 1500);
-//        OrderDAO orderDAO = new OrderDAO(jdbcTemplate, customerDAO, keyHolder);
-//        Mockito.when(orderDAO.addOrder(order)).thenReturn(order);
-//        assertEquals();
+//        ReflectionTestUtils.setField(orderDAO, "jdbcTemplate", jdbcTemplate);
+        Mockito.when(customerDAO.getCurrentCustomerId()).thenReturn(1).thenReturn(jdbcTemplate.update(anyString())).thenReturn(1);
+//        Mockito.when(jdbcTemplate.update(anyString())).thenReturn(1);
+        OrderDAO orderDAO = new OrderDAO();
+        order.setCustomerId(customerDAO.getCurrentCustomerId());
+        assertEquals(1, orderDAO.addOrder(order));
     }
 }
