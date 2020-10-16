@@ -1,23 +1,22 @@
 package service_order.dao;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.stubbing.Answer;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import service_order.domains.Order;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
+import java.util.HashMap;
+import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OrderDAOTest {
 
@@ -33,13 +32,19 @@ public class OrderDAOTest {
     }
 
     @Test
-    public void testAddOrderOk(){
+    @DisplayName("Проверяем работу метода в классе OrderDAO")
+    public void testAddOrderOk() {
         Order order = new Order("book", 1500);
-//        ReflectionTestUtils.setField(orderDAO, "jdbcTemplate", jdbcTemplate);
-        Mockito.when(customerDAO.getCurrentCustomerId()).thenReturn(1).thenReturn(jdbcTemplate.update(anyString())).thenReturn(1);
-//        Mockito.when(jdbcTemplate.update(anyString())).thenReturn(1);
-        OrderDAO orderDAO = new OrderDAO();
         order.setCustomerId(customerDAO.getCurrentCustomerId());
+        OrderDAO orderDAO = new OrderDAO();
+        ReflectionTestUtils.setField(orderDAO, "jdbcTemplate", jdbcTemplate);
+        Mockito.when(jdbcTemplate.update(Mockito.any(PreparedStatementCreator.class), Mockito.any(GeneratedKeyHolder.class))).thenAnswer((Answer<?>) invocation -> {
+            Object[] args = invocation.getArguments();
+            Map<String, Object> keyMap = new HashMap<>();
+            keyMap.put("", 1);
+            ((GeneratedKeyHolder) args[1]).getKeyList().add(keyMap);
+            return null;
+        });
         assertEquals(1, orderDAO.addOrder(order));
     }
 }
