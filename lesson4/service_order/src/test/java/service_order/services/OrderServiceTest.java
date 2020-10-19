@@ -34,7 +34,7 @@ public class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("Проверка на получение exception, когда указанная цена < 0")
+    @DisplayName("Проверка получения exception, когда указанная цена < 0")
     public void testCreateOrderExceptionBadPrice() {
         Order orderFalse = new Order(anyString(), -15);
         OrderService orderService = new OrderService(orderDAO);
@@ -45,7 +45,7 @@ public class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("Проверка на получение exception, когда передана пустая строка без символов.")
+    @DisplayName("Проверка получения exception, когда передана пустая строка без символов.")
     public void testCreateOrderExceptionEmptyName() {
         Order orderFalse = new Order("", anyInt());
         OrderService orderService = new OrderService(orderDAO);

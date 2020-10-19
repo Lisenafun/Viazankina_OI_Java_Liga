@@ -16,6 +16,12 @@ public class OrderController {
     @Autowired
     private final OrderService orderService;
 
+    /**
+     * Контроллер для создания заказа с параметрами и внесения его в БД
+     *
+     * @param order Заказ
+     * @return Статус 200 и order.id при успешном выполнении, иначе статус 400 и сообщение об ошибке
+     */
     @PostMapping(value = "/orders/")
     public ResponseEntity<?> createOrder(Order order) {
         int orderId;

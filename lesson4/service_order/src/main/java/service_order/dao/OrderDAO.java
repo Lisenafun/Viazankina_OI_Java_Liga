@@ -29,6 +29,13 @@ public class OrderDAO {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+
+    /**
+     * Сохранение заказ в базе данных
+     *
+     * @param order Заказ
+     * @return id Номер id, сохраненного заказа
+     */
     public int addOrder(Order order){
         String sql = "INSERT INTO Orders (NAME, PRICE, CUSTOMER_ID)" + "VALUES (?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();

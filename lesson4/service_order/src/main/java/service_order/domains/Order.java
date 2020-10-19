@@ -17,7 +17,7 @@ public class Order implements Serializable {
     private int price;
     private int customerId;
 
-    public Order(String name, int price){
+    public Order(String name, int price) {
         this.name = name;
         this.price = price;
     }

@@ -35,7 +35,7 @@ public class OrderControllerTest {
     }
 
     @Test()
-    @DisplayName("Проверяем на получение Exception, если указана цена < 0")
+    @DisplayName("Проверяем получение Exception, если указана цена < 0")
     public void testCreateOrderExceptionBadPrice() {
         Order orderFalse = new Order(anyString(), -15);
         OrderController orderController = new OrderController(orderService);
@@ -47,7 +47,7 @@ public class OrderControllerTest {
     }
 
     @Test()
-    @DisplayName("Проверяем на получение Exception, если указана пустая строка в имени")
+    @DisplayName("Проверяем получение Exception, если указана пустая строка в имени")
     public void testCreateOrderExceptionEmptyName() {
         Order orderFalse = new Order("", anyInt());
         OrderController orderController = new OrderController(orderService);

@@ -1,18 +1,18 @@
 package service_order.dao;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
 public class CustomerDAO {
 
-    @Autowired
-    private final JdbcTemplate jdbcTemplate;
-
-    public int getCurrentCustomerId(){
+    /**
+     * Получение id текущего покупателя
+     *
+     * @return id Номер id текущего покупателя
+     */
+    public int getCurrentCustomerId() {
         return 1;
     }
 }
