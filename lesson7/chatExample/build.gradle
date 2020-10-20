@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+}
+
+group 'ru.java.liga'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.4.22.Final'
+//    implementation group: 'org.hibernate', name: 'hibernate-jcache', version: '5.4.22.Final'
+//    implementation group: 'org.ehcache', name: 'ehcache', version: '3.1.1'
+
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.17'
+
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
+    implementation "org.glassfish.jaxb:jaxb-runtime:2.3.2"
+
+//    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
