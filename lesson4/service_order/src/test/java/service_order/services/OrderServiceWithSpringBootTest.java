@@ -26,7 +26,7 @@ public class OrderServiceWithSpringBootTest {
     public void testCreateOrderOK() throws Exception {
         int expectedOrderId = 1;
         Mockito.when(orderDAO.addOrder(any())).thenReturn(expectedOrderId);
-        int actualOrderId = orderService.createOrder(new Order("book", 1));
+        int actualOrderId = orderService.createOrder(new Order("book", 1,1));
         assertEquals(expectedOrderId, actualOrderId);
         Mockito.verify(orderDAO).addOrder(any());
     }

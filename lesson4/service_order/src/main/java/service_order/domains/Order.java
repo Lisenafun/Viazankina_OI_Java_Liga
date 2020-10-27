@@ -4,21 +4,17 @@ import lombok.*;
 
 import java.io.Serializable;
 
-@Getter
-@Setter
-@RequiredArgsConstructor
-@AllArgsConstructor
-@ToString
-@EqualsAndHashCode
+@Data
 public class Order implements Serializable {
 
-    private int id;
+    private Integer id;
     private String name;
     private int price;
     private int customerId;
 
-    public Order(String name, int price) {
+    public Order(String name, Integer price, Integer customerId) {
         this.name = name;
         this.price = price;
+        this.customerId = customerId;
     }
 }

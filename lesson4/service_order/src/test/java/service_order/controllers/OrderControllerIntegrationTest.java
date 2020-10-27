@@ -21,9 +21,10 @@ public class OrderControllerIntegrationTest {
     @Test
     @DisplayName("Проверка на возврат статуса 200 и верного id")
     public void testCreateOrderStatusOkAndContentOk() throws Exception {
-        mockMvc.perform(post("/orders/")
+        mockMvc.perform(post("/api/v1/orders/")
                 .param("name", "book")
                 .param("price", "1500")
+                .param("customerId","1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
@@ -32,9 +33,10 @@ public class OrderControllerIntegrationTest {
     @Test
     @DisplayName("Проверка на возврат статуса 400 и сообщения об ошибке при неверно заполненном поле price")
     public void testCreateOrderStatusBadRequestWithBadPrice() throws Exception {
-        mockMvc.perform(post("/orders/")
+        mockMvc.perform(post("/api/v1/orders/")
                 .param("name", "book")
                 .param("price", "-15")
+                .param("customerId","1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Некорректно заполненный заказ."));
@@ -43,9 +45,10 @@ public class OrderControllerIntegrationTest {
     @Test
     @DisplayName("Проверка на возврат статуса 400 и сообщения об ошибке при пустом поле name")
     public void testCreateOrderStatusBadRequestWithEmptyName() throws Exception {
-        mockMvc.perform(post("/orders/")
+        mockMvc.perform(post("/api/v1/orders/")
                 .param("name", "")
                 .param("price", "1500")
+                .param("customerId","1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Некорректно заполненный заказ."));

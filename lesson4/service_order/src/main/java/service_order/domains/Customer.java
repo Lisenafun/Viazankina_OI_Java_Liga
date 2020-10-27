@@ -1,15 +1,14 @@
 package service_order.domains;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class Customer {
 
-    private int id;
+    private Integer id;
     private String name;
     private String email;
 }

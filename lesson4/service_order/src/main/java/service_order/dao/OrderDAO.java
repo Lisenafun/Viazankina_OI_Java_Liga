@@ -1,34 +1,19 @@
 package service_order.dao;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import service_order.domains.Order;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 
+@Repository
 @RequiredArgsConstructor
-@Component
 public class OrderDAO {
 
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private DataSource dataSource;
-
-    @Autowired
-    private CustomerDAO customerDAO;
-
-    @PostConstruct
-    private void postConstruct() {
-        jdbcTemplate = new JdbcTemplate(dataSource);
-    }
-
+    private final JdbcTemplate jdbcTemplate;
 
     /**
      * Сохранение заказ в базе данных
@@ -36,17 +21,17 @@ public class OrderDAO {
      * @param order Заказ
      * @return id Номер id, сохраненного заказа
      */
-    public int addOrder(Order order){
+    public Integer addOrder(Order order) {
         String sql = "INSERT INTO Orders (NAME, PRICE, CUSTOMER_ID)" + "VALUES (?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update( connection -> {
+        jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"ID"});
             ps.setString(1, order.getName());
             ps.setInt(2, order.getPrice());
-            ps.setInt(3, customerDAO.getCurrentCustomerId());
+            ps.setInt(3, order.getCustomerId());
             return ps;
         }, keyHolder);
         Number key = keyHolder.getKey();
-        return key.intValue();
+        return key != null ? key.intValue() : null;
     }
 }

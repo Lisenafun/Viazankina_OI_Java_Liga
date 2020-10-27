@@ -10,7 +10,6 @@ import org.mockito.stubbing.Answer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.test.util.ReflectionTestUtils;
 import service_order.domains.Order;
 
 import java.util.HashMap;
@@ -23,21 +22,18 @@ public class OrderDAOTest {
     @Mock
     private JdbcTemplate jdbcTemplate;
 
-    @Mock
-    private CustomerDAO customerDAO;
+    private OrderDAO orderDAO;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        orderDAO = new OrderDAO(jdbcTemplate);
     }
 
     @Test
     @DisplayName("Проверяем работу метода в классе OrderDAO")
     public void testAddOrderOk() {
-        Order order = new Order("book", 1500);
-        order.setCustomerId(customerDAO.getCurrentCustomerId());
-        OrderDAO orderDAO = new OrderDAO();
-        ReflectionTestUtils.setField(orderDAO, "jdbcTemplate", jdbcTemplate);
+        Order order = new Order("book", 1500, 1);
         Mockito.when(jdbcTemplate.update(Mockito.any(PreparedStatementCreator.class), Mockito.any(GeneratedKeyHolder.class))).thenAnswer((Answer<?>) invocation -> {
             Object[] args = invocation.getArguments();
             Map<String, Object> keyMap = new HashMap<>();
@@ -45,6 +41,6 @@ public class OrderDAOTest {
             ((GeneratedKeyHolder) args[1]).getKeyList().add(keyMap);
             return null;
         });
-        assertEquals(1, orderDAO.addOrder(order));
+        assertEquals(1, orderDAO.addOrder(order).intValue());
     }
 }

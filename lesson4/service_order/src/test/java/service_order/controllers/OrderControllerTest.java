@@ -15,12 +15,15 @@ import static org.mockito.ArgumentMatchers.*;
 
 public class OrderControllerTest {
 
+    private OrderController orderController;
+
     @Mock
     OrderService orderService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        orderController = new OrderController(orderService);
     }
 
     @Test
@@ -28,33 +31,8 @@ public class OrderControllerTest {
     public void testCreateOrderOk() throws Exception {
         int expectedOrderId = 1;
         Mockito.when(orderService.createOrder(any())).thenReturn(expectedOrderId);
-        OrderController orderController = new OrderController(orderService);
-        ResponseEntity<?> answer = orderController.createOrder(new Order("book", 1));
+        ResponseEntity<?> answer = orderController.createOrder(new Order("book", 1, 1));
         assertEquals(expectedOrderId, answer.getBody());
         Mockito.verify(orderService).createOrder(any());
-    }
-
-    @Test()
-    @DisplayName("Проверяем получение Exception, если указана цена < 0")
-    public void testCreateOrderExceptionBadPrice() {
-        Order orderFalse = new Order(anyString(), -15);
-        OrderController orderController = new OrderController(orderService);
-        try {
-            orderController.createOrder(orderFalse);
-        } catch(Exception e) {
-            assertEquals("Некорректно заполненный заказ.", e.getMessage());
-        }
-    }
-
-    @Test()
-    @DisplayName("Проверяем получение Exception, если указана пустая строка в имени")
-    public void testCreateOrderExceptionEmptyName() {
-        Order orderFalse = new Order("", anyInt());
-        OrderController orderController = new OrderController(orderService);
-        try {
-            orderController.createOrder(orderFalse);
-        } catch(Exception e) {
-            assertEquals("Некорректно заполненный заказ.", e.getMessage());
-        }
     }
 }
