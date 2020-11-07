@@ -1,41 +1,62 @@
 package ru.liga.java.socialnetwork.domains;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
-import ru.liga.java.socialnetwork.domains.enums.Gender;
+import ru.liga.java.socialnetwork.enums.Gender;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
-
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
-@Table(name = "USERS")
-public class User {
+@Table(name = "Users")
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(exclude = "friends")
+@JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id")
+public class User implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition = "SERIAL")
     private Integer id;
 
-    @Column(name="FIRST_NAME", length=50, nullable=false)
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(name = "first_name", length = 50, nullable = false)
     private String firstName;
 
-    @Column(name="LAST_NAME", length=50, nullable=false)
+    @Column(name = "last_name", length = 50, nullable = false)
     private String lastName;
 
     private Integer age;
 
     @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private Gender gender = Gender.UNDEFINED;
 
-    @Column(length=1045)
     private String interests;
 
-    @Column(length=50)
+    @Column(length = 50)
     private String town;
 
-    @OneToMany(mappedBy = "friend", fetch = FetchType.LAZY)
-    private Set<Friendship> friends;
+    @Transient
+    @ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+    @JoinTable(name = "friendship",
+            joinColumns = {@JoinColumn(name = "user_id", nullable = false, updatable = false)},
+            inverseJoinColumns = {@JoinColumn(name = "friend_id", nullable = false, updatable = false)})
+    private Set<User> friends = new HashSet<>();
+
+    public User(String email, String firstName, String lastName) {
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" + "id=" + id + ", email='" + email + '\'' + ", firstName='" + firstName + '\'' + ", lastName='" + lastName + '\'' + ", age=" + age + ", gender=" + gender + ", interests='" + interests + '\'' + ", town='" + town + '}';
+    }
 }
