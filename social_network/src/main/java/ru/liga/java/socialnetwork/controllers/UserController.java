@@ -1,16 +1,15 @@
 package ru.liga.java.socialnetwork.controllers;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.liga.java.socialnetwork.domains.User;
 import ru.liga.java.socialnetwork.dto.UserDTOForRegistration;
-import ru.liga.java.socialnetwork.enums.Gender;
+import ru.liga.java.socialnetwork.dto.UserDTOForUser;
 import ru.liga.java.socialnetwork.services.UserService;
+import ru.liga.java.socialnetwork.services.filters.UserFilter;
 
-import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -19,19 +18,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
-//    @PostMapping
-//    public ResponseEntity<String> add(@RequestParam(name = "email") String email,
-//                                      @RequestParam(name = "firstName") String firstName,
-//                                      @RequestParam(name = "lastName") String lastName){
-//        Integer id;
-//        try {
-//            id = userService.add(email, firstName, lastName);
-//        } catch(Exception e) {
-//            return new ResponseEntity<>(e.toString(), HttpStatus.BAD_REQUEST);
-//        }
-//        return new ResponseEntity<>(id.toString(), HttpStatus.OK);
-//    }
 
     @PostMapping
     public ResponseEntity<String> add(UserDTOForRegistration userDTO){
@@ -47,13 +33,17 @@ public class UserController {
     @GetMapping("{id}")
     @ResponseBody
     public ResponseEntity<User> get(@PathVariable Integer id){
-        return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
+        User user = userService.findOne(id);
+        if(user == null){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping("all")
     @ResponseBody
     public ResponseEntity<List<User>> getAll(){
-        List<User> users = userService.getAllUsers();
+        List<User> users = userService.findAll();
         if(users.isEmpty()){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -62,15 +52,8 @@ public class UserController {
 
     @GetMapping
     @ResponseBody
-    public ResponseEntity<List<User>> getUsersWithParams(@RequestParam(name = "firstName", required = false) String firstName,
-                                                         @RequestParam(name = "lastName", required = false) String lastName
-//                                                         ,@RequestParam(name = "age", required = false) String age,
-//                                                         @RequestParam(name = "gender", required = false, defaultValue = "UNDEFINED") Gender gender,
-//                                                         @RequestParam(name = "town", required = false) String town
-                                                         ){
-
-//        List<User> users = userService.getUsersWithParams(firstName, lastName, Integer.getInteger(age), gender, town);
-        List<User> users = userService.getUsersWithParams(firstName, lastName);
+    public ResponseEntity <List<User>> getUsersWithFilters(UserFilter filter){
+        List<User> users =  userService.findWithFilter(filter);
         if(users.isEmpty()){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -78,13 +61,8 @@ public class UserController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<String> update(User user, @PathVariable Integer id){
-        Integer updateUserId;
-        try {
-            updateUserId = userService.update(user, id);
-        } catch(Exception e) {
-            return new ResponseEntity<>(e.toString(), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<String> update(UserDTOForUser userDTO, @PathVariable Integer id){
+        Integer updateUserId = userService.update(userDTO, id);
         return new ResponseEntity<>(updateUserId.toString(), HttpStatus.OK);
     }
 

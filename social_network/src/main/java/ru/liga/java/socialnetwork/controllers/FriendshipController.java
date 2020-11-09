@@ -10,13 +10,13 @@ import ru.liga.java.socialnetwork.services.FriendshipService;
 import java.util.List;
 
 @RestController
-@RequestMapping("users")
+@RequestMapping("friends")
 public class FriendshipController {
 
     @Autowired
     private FriendshipService friendshipService;
 
-    @GetMapping("{userId}/friends")
+    @GetMapping("{userId}")
     @ResponseBody
     public ResponseEntity<List<User>> getFriends(@PathVariable Integer userId){
         List<User> friends = friendshipService.getFriendList(userId);
@@ -24,7 +24,7 @@ public class FriendshipController {
         return new ResponseEntity<>(friends, HttpStatus.OK);
     }
 
-    @PutMapping("{userId}/friends/{friendId}")
+    @PutMapping("{userId}/{friendId}")
     public ResponseEntity<Integer> addFriend(@PathVariable Integer userId, @PathVariable Integer friendId){
         boolean success = friendshipService.addFriend(userId, friendId);
         if(success){
@@ -33,7 +33,7 @@ public class FriendshipController {
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("{userId}/friends/{friendId}")
+    @DeleteMapping("{userId}/{friendId}")
     public ResponseEntity<User> deleteFriend(@PathVariable Integer userId, @PathVariable Integer friendId){
         boolean success = friendshipService.deleteFriend(userId,friendId);
         if(success){

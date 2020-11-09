@@ -1,7 +1,5 @@
 package ru.liga.java.socialnetwork.domains;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,7 +10,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Entity
 @Table(name = "Friendship")
-//@JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id")
 public class Friendship implements Serializable {
 
     @Id

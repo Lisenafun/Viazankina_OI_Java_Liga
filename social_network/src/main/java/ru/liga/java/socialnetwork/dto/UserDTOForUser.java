@@ -5,9 +5,13 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class UserDTOForRegistration {
+public class UserDTOForUser {
 
     private String email;
     private String firstName;
     private String lastName;
+    private String interests;
+    private Integer age;
+    private String gender;
+    private String town;
 }

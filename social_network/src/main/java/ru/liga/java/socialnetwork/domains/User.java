@@ -26,20 +26,23 @@ public class User implements Serializable {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "first_name", length = 50, nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "last_name", length = 50, nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    @Column(name = "age")
     private Integer age;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
     private Gender gender = Gender.UNDEFINED;
 
+    @Column(name = "interests")
     private String interests;
 
-    @Column(length = 50)
+    @Column(name = "town")
     private String town;
 
     @Transient
@@ -49,11 +52,11 @@ public class User implements Serializable {
             inverseJoinColumns = {@JoinColumn(name = "friend_id", nullable = false, updatable = false)})
     private Set<User> friends = new HashSet<>();
 
-    public User(String email, String firstName, String lastName) {
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
+//    public User(String email, String firstName, String lastName) {
+//        this.email = email;
+//        this.firstName = firstName;
+//        this.lastName = lastName;
+//    }
 
     @Override
     public String toString() {

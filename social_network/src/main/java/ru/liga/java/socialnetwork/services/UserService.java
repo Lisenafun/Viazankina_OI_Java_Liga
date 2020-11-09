@@ -3,19 +3,21 @@ package ru.liga.java.socialnetwork.services;
 import lombok.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import ru.liga.java.socialnetwork.domains.User;
 import ru.liga.java.socialnetwork.dto.UserDTOForRegistration;
+import ru.liga.java.socialnetwork.dto.UserDTOForUser;
 import ru.liga.java.socialnetwork.enums.Gender;
 import ru.liga.java.socialnetwork.repositories.UserRepository;
-import ru.liga.java.socialnetwork.specifications.UserSpecification;
+import ru.liga.java.socialnetwork.services.filters.UserFilter;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static ru.liga.java.socialnetwork.specifications.UserSpecification.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Getter
 @Setter
@@ -28,90 +30,85 @@ public class UserService {
     @Autowired
     private ModelMapper modelMapper;
 
-//    public Integer add(String email, String firstName, String lastName) throws Exception{
-//        if(userRepository.findByEmail(email).isPresent()){
-//            throw new Exception("Пользователь с указанным адресом почты уже существует.");
-//        }
-//        User userNew = userRepository.save(new User(email, firstName, lastName));
-//        return userNew.getId();
-//    }
-
-    public List<User> getAllUsers(){
+    public List<User> findAll() {
         List<User> userList = new ArrayList<>();
         Iterable<User> users = userRepository.findAll();
         users.forEach(userList::add);
-        if(userList.isEmpty()){
+        if(userList.isEmpty()) {
             return null;
         }
         return userList;
     }
 
-    public Integer update(User user, Integer id) throws Exception {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if(optionalUser.isPresent()){
-            User userInDB = optionalUser.get();
-            if(user.getEmail() != null){
-                userInDB.setEmail(user.getEmail());
-            }
-            if(user.getFirstName() != null){
-                userInDB.setFirstName(user.getFirstName());
-            }
-            if(user.getLastName() != null){
-                userInDB.setLastName(user.getLastName());
-            }
-            if(user.getAge() != null){
-                userInDB.setAge(user.getAge());
-            }
-            if(user.getGender() != null){
-                userInDB.setGender(user.getGender());
-            }
-            if(user.getInterests() != null){
-                userInDB.setInterests(user.getInterests());
-            }
-            if(user.getTown() != null){
-                userInDB.setTown(user.getTown());
-            }
-            userRepository.save(userInDB);
-            return userInDB.getId();
+    @Transactional
+    public Integer add(UserDTOForRegistration userDTO) throws RuntimeException {
+        if(StringUtils.isEmpty(userDTO.getFirstName()) || StringUtils.isEmpty(userDTO.getLastName())) {
+            throw new RuntimeException("Поля не могут быть пустыми.");
         }
-//        add(user.getEmail(), user.getFirstName(), user.getLastName());
-        add(convertToDto(optionalUser.get()));
-        return update(user, user.getId());
+        if(validEmail(userDTO.getEmail())) {
+            User user = convertFromDtoReg(userDTO);
+            if(userRepository.findByEmail(user.getEmail()).isPresent()) {
+                throw new RuntimeException("Пользователь с указанным адресом почты уже существует.");
+            }
+            user = userRepository.save(user);
+            return user.getId();
+        }
+        ;
+        throw new RuntimeException("Введите корректный e-mail.");
+    }
+
+    @Transactional
+    public Integer update(UserDTOForUser userDTO, Integer id) {
+        User entity = Optional.ofNullable(id)
+                .flatMap(userRepository::findById)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден!"));
+
+        User user = convertFromDtoForUser(userDTO, entity);
+        user = userRepository.save(user);
+        return user.getId();
     }
 
     public void delete(Integer id) {
         userRepository.deleteById(id);
     }
 
-    public User getUser(Integer id) {
+    public User findOne(Integer id) {
         Optional<User> optionalUser = userRepository.findById(id);
         return optionalUser.orElse(null);
     }
 
-    public List<User> getUsersWithParams(String firstName, String lastName, Integer age, Gender gender, String town){
-        return userRepository.findAll(Specification.where(getUserByFirstNameSpec(firstName)
-                .and(getUserByLastNameSpec(lastName).and(getUserByAgeSpec(age).and(getUserByGenderSpec(gender).and(getUserByTownSpec(town)))))));
+    public List<User> findWithFilter(UserFilter filter) {
+        return userRepository.findAll(filter.toSpecification());
     }
 
-    public List<User> getUsersWithParams(String firstName, String lastName){
-        return userRepository.findAll(Specification.where(getUserByFirstNameSpec(firstName)
-                .and(getUserByLastNameSpec(lastName))));
+    private boolean validEmail(String email) {
+        Pattern pattern = Pattern.compile("\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*\\.\\w{2,4}");
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
     }
 
-    public Integer add(UserDTOForRegistration userDTO) throws Exception{
-        User user = convertToEntity(userDTO);
-        if(userRepository.findByEmail(user.getEmail()).isPresent()){
-            throw new Exception("Пользователь с указанным адресом почты уже существует.");
-        }
-        User userNew = userRepository.save(user);
-        return userNew.getId();
-    }
-
-    private UserDTOForRegistration convertToDto(User user) {
+    private UserDTOForRegistration convertToDtoReg(User user) {
         return modelMapper.map(user, UserDTOForRegistration.class);
     }
 
-    private User convertToEntity(UserDTOForRegistration userDTOForRegistration) {
+    private User convertFromDtoReg(UserDTOForRegistration userDTOForRegistration) {
         return modelMapper.map(userDTOForRegistration, User.class);
+    }
+
+    private User convertFromDtoForUser(UserDTOForUser dtoForUser, User user) {
+        user.setFirstName(dtoForUser.getFirstName());
+        user.setLastName(dtoForUser.getLastName());
+        user.setAge(dtoForUser.getAge());
+        user.setTown(dtoForUser.getTown());
+        user.setInterests(dtoForUser.getInterests());
+        user.setEmail(dtoForUser.getEmail());
+        if(StringUtils.isEmpty(dtoForUser.getGender())) {
+            user.setGender(Gender.UNDEFINED);
+        } else if(dtoForUser.getGender().equalsIgnoreCase(Gender.MALE.toString())) {
+            user.setGender(Gender.MALE);
+        } else if(dtoForUser.getGender().equalsIgnoreCase(Gender.FEMALE.toString())) {
+            user.setGender(Gender.FEMALE);
+        }
+        return user;
     }
 }
