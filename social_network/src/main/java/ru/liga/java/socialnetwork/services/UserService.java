@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.liga.java.socialnetwork.domains.User;
-import ru.liga.java.socialnetwork.dto.UserDTOForRegistration;
-import ru.liga.java.socialnetwork.dto.UserDTOForUser;
+import ru.liga.java.socialnetwork.dto.UserRegistrationDto;
+import ru.liga.java.socialnetwork.dto.UserEditDto;
 import ru.liga.java.socialnetwork.enums.Gender;
+import ru.liga.java.socialnetwork.repositories.FriendshipRepository;
 import ru.liga.java.socialnetwork.repositories.UserRepository;
 import ru.liga.java.socialnetwork.services.filters.UserFilter;
 
@@ -18,30 +19,32 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final FriendshipRepository friendshipRepository;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    public UserEditDto findOne(Integer id) {
+        return userRepository.findById(id)
+                .map(this::convertToEditDto)
+                .orElse(null);
+    }
 
-    public List<User> findAll() {
-        List<User> userList = new ArrayList<>();
-        Iterable<User> users = userRepository.findAll();
-        users.forEach(userList::add);
-        if(userList.isEmpty()) {
-            return null;
-        }
-        return userList;
+    public List<UserEditDto> findWithFilter(UserFilter filter) {
+        return userRepository.findAll(filter.toSpecification())
+                .stream().map(this::convertToEditDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public Integer add(UserDTOForRegistration userDTO) throws RuntimeException {
+    public Integer add(UserRegistrationDto userDTO) throws RuntimeException {
         if(StringUtils.isEmpty(userDTO.getFirstName()) || StringUtils.isEmpty(userDTO.getLastName())) {
             throw new RuntimeException("Поля не могут быть пустыми.");
         }
@@ -53,32 +56,42 @@ public class UserService {
             user = userRepository.save(user);
             return user.getId();
         }
-        ;
         throw new RuntimeException("Введите корректный e-mail.");
     }
 
     @Transactional
-    public Integer update(UserDTOForUser userDTO, Integer id) {
-        User entity = Optional.ofNullable(id)
-                .flatMap(userRepository::findById)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден!"));
-
-        User user = convertFromDtoForUser(userDTO, entity);
-        user = userRepository.save(user);
-        return user.getId();
+    public Integer update(UserEditDto userDTO, Integer id) throws RuntimeException{
+        User entity = validById(id);
+        if(StringUtils.isEmpty(userDTO.getEmail())){
+            userDTO.setEmail(entity.getEmail());
+        }
+        if(StringUtils.isEmpty(userDTO.getFirstName())){
+            userDTO.setFirstName(entity.getFirstName());
+        }
+        if(StringUtils.isEmpty(userDTO.getLastName())){
+            userDTO.setLastName(entity.getLastName());
+        }
+        if(validEmail(userDTO.getEmail())){
+            User user = convertFromEditDto(userDTO, entity);
+            user = userRepository.save(user);
+            return user.getId();
+        }
+        throw new RuntimeException("Введите корректный e-mail.");
     }
 
     public void delete(Integer id) {
+        User entity = validById(id);
+        friendshipRepository.findByOwner(entity).forEach(friend -> {
+            friendshipRepository.deleteByOwnerAndFriend(entity, friend);
+            friendshipRepository.deleteByOwnerAndFriend(friend, entity);
+        });
         userRepository.deleteById(id);
     }
 
-    public User findOne(Integer id) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        return optionalUser.orElse(null);
-    }
-
-    public List<User> findWithFilter(UserFilter filter) {
-        return userRepository.findAll(filter.toSpecification());
+    protected User validById(Integer id) {
+        return Optional.ofNullable(id)
+                .flatMap(userRepository::findById)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден!"));
     }
 
     private boolean validEmail(String email) {
@@ -87,15 +100,11 @@ public class UserService {
         return matcher.matches();
     }
 
-    private UserDTOForRegistration convertToDtoReg(User user) {
-        return modelMapper.map(user, UserDTOForRegistration.class);
+    protected User convertFromDtoReg(UserRegistrationDto userRegistrationDto) {
+        return modelMapper.map(userRegistrationDto, User.class);
     }
 
-    private User convertFromDtoReg(UserDTOForRegistration userDTOForRegistration) {
-        return modelMapper.map(userDTOForRegistration, User.class);
-    }
-
-    private User convertFromDtoForUser(UserDTOForUser dtoForUser, User user) {
+    protected User convertFromEditDto(UserEditDto dtoForUser, User user) {
         user.setFirstName(dtoForUser.getFirstName());
         user.setLastName(dtoForUser.getLastName());
         user.setAge(dtoForUser.getAge());
@@ -110,5 +119,18 @@ public class UserService {
             user.setGender(Gender.FEMALE);
         }
         return user;
+    }
+
+    protected UserEditDto convertToEditDto(User user) {
+        return modelMapper.map(user, UserEditDto.class);
+//        UserEditDto dtoForUser = new UserEditDto();
+//        dtoForUser.setEmail(user.getEmail());
+//        dtoForUser.setFirstName(user.getFirstName());
+//        dtoForUser.setLastName(user.getLastName());
+//        dtoForUser.setAge(user.getAge());
+//        dtoForUser.setTown(user.getTown());
+//        dtoForUser.setInterests(user.getInterests());
+//        dtoForUser.setGender(user.getGender().toString());
+//        return dtoForUser;
     }
 }

@@ -9,12 +9,15 @@ import ru.liga.java.socialnetwork.domains.User;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FriendshipRepository extends CrudRepository<Friendship, Integer>, JpaSpecificationExecutor<Friendship> {
 
     @Query("SELECT f.friend FROM Friendship f WHERE f.owner = ?1")
     List<User> findByOwner(User owner);
+
+    Optional<Friendship> findByOwnerAndFriend(User owner, User friend);
 
     @Transactional
     void deleteByOwnerAndFriend(User owner, User friend);
