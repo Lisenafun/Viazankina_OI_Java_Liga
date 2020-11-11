@@ -4,9 +4,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+/**
+ * Базовая спецификация
+ */
 public class BaseSpecification {
 
-        /**
+    /**
      * Поиск по вхождению
      *
      * @param column колонка таблицы сущности T
@@ -21,7 +24,7 @@ public class BaseSpecification {
     }
 
     /**
-     * Поиск по эквивалентности полю
+     * Поиск по эквивалентности поля
      *
      * @param column колонка таблицы сущности T
      * @param flag   значение поля

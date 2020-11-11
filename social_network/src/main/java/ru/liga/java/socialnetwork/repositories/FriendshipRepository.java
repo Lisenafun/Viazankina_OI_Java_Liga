@@ -11,14 +11,36 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Репозиторий сущности Friendship
+ */
 @Repository
 public interface FriendshipRepository extends CrudRepository<Friendship, Integer>, JpaSpecificationExecutor<Friendship> {
 
+    /**
+     * Метод для получения списка друзей
+     *
+     * @param owner Пользователь, который дружит("владелец дружбы")
+     * @return Список друзей
+     */
     @Query("SELECT f.friend FROM Friendship f WHERE f.owner = ?1")
     List<User> findByOwner(User owner);
 
+    /**
+     * Метод для получения дружбы между двумя пользователя
+     *
+     * @param owner Пользователь - "владелец дружбы"
+     * @param friend Пользователь - друг
+     * @return Optional дружбы
+     */
     Optional<Friendship> findByOwnerAndFriend(User owner, User friend);
 
+    /**
+     * Метод для удаления дружбы между двумя пользователями
+     *
+     * @param owner Пользователь - "владелец дружбы"
+     * @param friend Пользователь - друг
+     */
     @Transactional
     void deleteByOwnerAndFriend(User owner, User friend);
 }
