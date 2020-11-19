@@ -11,9 +11,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.liga.java.socialnetwork.dto.UserRegistrationDto;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(properties = "spring.flyway.enabled=false")
+@SpringBootTest
 @AutoConfigureMockMvc
 public class UserControllerIntegrationTest {
 
@@ -27,10 +28,11 @@ public class UserControllerIntegrationTest {
     @DisplayName("Проверка на возврат статуса 200 и верного id")
     public void testAddUserStatusOkAndContentOk() throws Exception {
         UserRegistrationDto userDto = new UserRegistrationDto("fedorov@mail.ru", "Fedor", "Fedorov");
-        this.mockMvc.perform(post("/api/v1/users")
-                .content(objectMapper.writeValueAsString(userDto))
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().string("1"))
+        this.mockMvc.perform(post("/api/v1/users/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userDto)))
+                .andDo(print())
+                .andExpect(content().string("22"))
                 .andExpect(status().isOk());
     }
 }
